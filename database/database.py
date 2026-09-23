@@ -7,3 +7,18 @@ load_dotenv()
 
 database = os.getenv("DATABASE_URL")
 engine = create_engine(database)
+
+session = sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    bind=engine
+)
+
+Base = declarative_base()
+
+def get_db():
+    db=session()
+    try:
+        yield db
+    finally:
+        db.close()

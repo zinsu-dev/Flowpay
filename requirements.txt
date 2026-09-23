@@ -4,6 +4,7 @@ sqlalchemy
 passlib
 bcrypt
 pyjwt
+psycopg2-binary
 pydantic[email]
 uuid
 alembic
