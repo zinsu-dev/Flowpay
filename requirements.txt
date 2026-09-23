@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+passlib
+bcrypt
+pyjwt
+pydantic[email]
+uuid
+alembic
+paybridge
+httpx 
