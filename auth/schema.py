@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr,String,Float,Integer,Boolean
 
 class Signup(BaseModel):
     first_name:str

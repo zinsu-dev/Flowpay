@@ -4,6 +4,7 @@ sqlalchemy
 passlib
 bcrypt
 pyjwt
+dotenv
 psycopg2-binary
 pydantic[email]
 uuid

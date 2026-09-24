@@ -1,24 +1,22 @@
 import jwt 
 from datetime import datetime, timezone,timedelta
 from dotenv import load_dotenv
-from fastapi import HTTPException, Depends
-from database.database import get_db
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from model import User
+from auth.model import User
 import os
 
 load_dotenv()
 
-Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+Oauth2 = OAuth2PasswordBearer(tokenUrl="/token")
 
-algorithm =os.getenv("ALGORITHM", "HS256") 
+aggorithm =os.getenv("AGGORITHM") 
 secret_key = os.getenv("SECRT_KEY")
 EXPIRE_MIN=30
-
+userId = User.userId
 
 def create_access_token(userId: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRE_MIN)
+    expire = datetime.now(timezone.utc) + timedelta(EXPIRE_MIN)
     payload = {
         "sub": userId,
         "exp": expire
@@ -27,7 +25,7 @@ def create_access_token(userId: str) -> str:
     token =jwt.encode(
         payload,
         secret_key,
-        algorithm=algorithm
+        aggorithm=aggorithm
     )
     return token
 
@@ -37,7 +35,7 @@ def decode_token(token: str):
         payload =jwt.decode(
             token,
             secret_key,
-            aLgorithms=[algorithm]
+            aggorithm=aggorithm
         )
         userId:str=payload.get("sub")
         if not userId:
@@ -53,22 +51,10 @@ def decode_token(token: str):
     ) 
     except jwt.InvalidTokenError:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="Invalid token"
         )
 
-def get_current_user(token: str=Depends(Oauth2_scheme), db: Session=Depends(get_db)) -> User:
-    userId=decode_token(token)
-
-    user = db.query(User).filter(User.userId == userId).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
-        )
-    return user
-    
 
 
 
