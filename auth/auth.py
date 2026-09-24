@@ -5,7 +5,7 @@ from fastapi import HTTPException, Depends
 from database.database import get_db
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
-from model import User
+from auth.models import User
 import os
 
 load_dotenv()
@@ -13,7 +13,7 @@ load_dotenv()
 Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 algorithm =os.getenv("ALGORITHM", "HS256") 
-secret_key = os.getenv("SECRT_KEY")
+secret_key = os.getenv("SECRET_KEY")
 EXPIRE_MIN=30
 
 

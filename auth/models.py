@@ -15,6 +15,7 @@ class User(Base):
     userId = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
+    phone_number = Column(String,nullable=True, unique=True)
     transaction_pin = Column(Integer, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
