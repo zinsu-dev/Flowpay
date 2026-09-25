@@ -5,9 +5,11 @@ class Signup(BaseModel):
     last_name:str
     username:str
     email:EmailStr
+    phone_number:str
     transaction_pin:str
     password:str
     confirm_password:str
+
 
 class Login(BaseModel):
     email:EmailStr
