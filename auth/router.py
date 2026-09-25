@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from auth.model import User
 from auth.schema import Signup, Login, ForgetPassword, Resetpassword
 from auth.utils import hash_password, verify_password
+from auth.auth import create_access_token
 
 router = APIRouter(
     tags=["auth"],
@@ -46,4 +47,29 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     return {
         "message": "Account created successful",
         "id": user.userId
+    }
+
+@router.post("/login")
+def login_user(request: Login, db: Session=Depends(get_db)):
+    user = db.query(User).filter(User.email==request.email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect credentials"
+        )
+
+    create_token = create_access_token(
+        user.userId
+    )
+
+    return {
+        "message": "Login successful",
+        "token": create_token
     }
