@@ -5,7 +5,7 @@ from fastapi import HTTPException, Depends
 from database.database import get_db
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
-from model import User
+from auth.models import User
 import os
 
 load_dotenv()
