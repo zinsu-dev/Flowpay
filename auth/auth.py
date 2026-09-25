@@ -13,11 +13,12 @@ load_dotenv()
 Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 algorithm =os.getenv("ALGORITHM", "HS256") 
-secret_key = os.getenv("SECRET_KEY")
+secret_key = os.getenv("SECRT_KEY")
 EXPIRE_MIN=30
 
 
-def create_access_token(userId: str) -> str:
+
+def create_access_token(userId: str):
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRE_MIN)
     payload = {
         "sub": userId,
@@ -45,7 +46,7 @@ def decode_token(token: str):
                 status_code=402,
                 detail="Invalid userId"
             )
-        return userId
+        
     except jwt.ExpiredSignatureError:
         raise HTTPException(
         status_code= 401,
@@ -56,6 +57,7 @@ def decode_token(token: str):
             status_code=401,
             detail="Invalid token"
         )
+    return userId
 
 def get_current_user(token: str=Depends(Oauth2_scheme), db: Session=Depends(get_db)) -> User:
     userId=decode_token(token)
