@@ -1,2 +1,5 @@
 .env
 /venv
+/__pycache__
+flaskr/__pycache__
+flowpay.db

@@ -1,8 +1,8 @@
-"""models
+"""usermodel
 
-Revision ID: 6d893c49e181
+Revision ID: a7d84edf6154
 Revises: 
-Create Date: 2026-09-24 03:32:17.630964
+Create Date: 2026-09-28 22:21:36.068953
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '6d893c49e181'
+revision: str = 'a7d84edf6154'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,11 +27,14 @@ def upgrade() -> None:
     sa.Column('userId', sa.String(), nullable=False),
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
+    sa.Column('phone_number', sa.String(), nullable=True),
     sa.Column('transaction_pin', sa.Integer(), nullable=False),
+    sa.Column('token', sa.String(), nullable=True),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('userId'),
     sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('phone_number'),
     sa.UniqueConstraint('username')
     )
     # ### end Alembic commands ###

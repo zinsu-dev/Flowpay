@@ -1,23 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.database import get_db
-from fastapi.security import OAuth2PasswordRequestForm
 from auth.models import User
-from auth.schema import Signup, Login, ForgetPassword, Resetpassword
+from auth.schema import Signup, Login, Logout, ForgetPassword, Resetpassword
 from auth.utils import hash_password, verify_password
+from auth.auth import create_access_token, decode_token
 
 router = APIRouter(
     tags=["auth"],
     prefix="/auth"
 )
 
-
-
 @router.post("/signup")
 def user_register(request: Signup, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
 
-    if user:
+    if not user:
         raise HTTPException(
             status_code=409,
             detail="email already exist"
@@ -46,4 +44,78 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     return {
         "message": "Account created successful",
         "id": user.userId
+    }
+
+@router.post("/login")
+@router.post("/Login", include_in_schema=False)
+def login_user(request: Login, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="user not found"
+        )
+    if not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+
+    access_token = create_access_token(user.userId)
+    user.token = access_token
+    db.commit()
+
+    return {
+        "message": "Login successful",
+        "token": access_token
+    }
+
+
+@router.post("/logout")
+def logout(request: Logout, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.token == request.token).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="user not found"
+        )
+    return {
+        "message": "Logout successful"
+    }
+
+
+@router.post("/forgetpassword")
+def forget_password(request: ForgetPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="user not found"
+        )
+    reset_token = create_access_token(str(user.userId))
+    return {
+        "token": reset_token
+    }
+
+
+@router.post("/resetpassword")
+def resetpassword(request: Resetpassword, db: Session = Depends(get_db)):
+    user_id = decode_token(request.token)
+    user = db.query(User).filter(User.userId == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+    if request.new_password != request.confirm_password:
+        raise HTTPException(
+            status_code=422,
+            detail="password do not match"
+        )
+
+    user.password = hash_password(request.new_password)
+    user.token = None
+    db.commit()
+    return {
+        "message": "password reset successful"
     }

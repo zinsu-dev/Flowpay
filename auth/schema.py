@@ -1,35 +1,30 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import AliasChoices, BaseModel, EmailStr, Field
+
 
 class Signup(BaseModel):
-    first_name:str
-    last_name:str
-    username:str
-    email:EmailStr
-    phone_number:str
-    transaction_pin:str
-    password:str
-    confirm_password:str
+    first_name: str
+    last_name: str
+    username: str
+    email: EmailStr
+    phone_number: str
+    transaction_pin: str
+    password: str
+    confirm_password: str
 
 
 class Login(BaseModel):
-    email:EmailStr
-    password:str
+    email: EmailStr
+    password: str
+
+class Logout(BaseModel):
+    token: str
 
 class ForgetPassword(BaseModel):
-    email:EmailStr
+    email: EmailStr
+
 
 class Resetpassword(BaseModel):
-     token:str
-     new_password:str
-     confirm_passwod:str
-    
-
-
-            
-
-
-
-
-
-
+    token: str
+    new_password: str
+    confirm_password: str 
 

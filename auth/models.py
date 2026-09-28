@@ -17,6 +17,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     phone_number = Column(String,nullable=True, unique=True)
     transaction_pin = Column(Integer, nullable=False)
+    token = Column(String, nullable=True)
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
