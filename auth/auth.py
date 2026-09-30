@@ -45,6 +45,7 @@ def decode_token(token: str) -> str:
                 status_code=401,
                 detail="Invalid token"
             )
+        
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(

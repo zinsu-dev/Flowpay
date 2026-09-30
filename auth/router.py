@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.database import get_db
-from auth.models import User
+from auth.models import User, UserSession
 from auth.schema import Signup, Login, Logout, ForgetPassword, Resetpassword
 from auth.utils import hash_password, verify_password
 from auth.auth import create_access_token, decode_token
@@ -47,8 +47,7 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     }
 
 @router.post("/login")
-@router.post("/Login", include_in_schema=False)
-def login_user(request: Login, db: Session = Depends(get_db)):
+def login(request: Login, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
         raise HTTPException(
@@ -62,7 +61,12 @@ def login_user(request: Login, db: Session = Depends(get_db)):
         )
 
     access_token = create_access_token(user.userId)
+
+    db.add(UserSession)
+    db.flush()
     user.token = access_token
+
+
     db.commit()
 
     return {
@@ -73,12 +77,20 @@ def login_user(request: Login, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(request: Logout, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.token == request.token).first()
+    user_id=decode_token(request.token)
+    user = db.query(User).filter(User.userId == user_id).first()
     if not user:
         raise HTTPException(
             status_code=404,
             detail="user not found"
         )
+    if not user.token:
+        raise HTTPException(
+            status_code=401,
+            detail="user is not logged in"
+        )
+    user.token=None
+    db.commit()    
     return {
         "message": "Logout successful"
     }
