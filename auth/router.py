@@ -17,7 +17,7 @@ router = APIRouter(
 def user_register(request: Signup, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
 
-    if not user:
+    if user:
         raise HTTPException(
             status_code=409,
             detail="email already exist"

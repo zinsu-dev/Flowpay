@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import String, Integer, Float, Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import foreign, relationship
 from database.database import Base 
 from enum import Enum
 
@@ -27,13 +27,21 @@ class Wallet(Base):
     wallet_currency = Column(String, default=lambda: str("NGN"), nullable=False)
     wallet_available_balance = Column(Float, nullable=False, default=0)
     wallet_status = Column(String, default=lambda: str("active"), nullable=False)
-    ledger = relationship("LedgerAccount", back_populates="wallet")
+    ledger = relationship(
+        "LedgerAccount",
+        back_populates="wallet",
+        primaryjoin=lambda: Wallet.id == foreign(LedgerAccount.entries_id),
+    )
 
 
 class LedgerAccount(Base):
     __tablename__="ledger"
     id = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
-    wallet = relationship("Wallet", back_populates="ledger")
+    wallet = relationship(
+        "Wallet",
+        back_populates="ledger",
+        primaryjoin=lambda: Wallet.id == foreign(LedgerAccount.entries_id),
+    )
     entries_amount = Column(Float, nullable=False, default=0)
     account_owners_type = Column(String, default="wallet", nullable=False)
     entries_id = Column(String, default=lambda: str(uuid.uuid4()))
