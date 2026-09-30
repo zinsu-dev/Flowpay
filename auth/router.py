@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -46,54 +48,43 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
         "id": user.userId
     }
 
+
 @router.post("/login")
 def login(request: Login, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="user not found"
-        )
-    if not verify_password(request.password, user.password):
+    if not user or not verify_password(request.password, user.password):
         raise HTTPException(
             status_code=401,
             detail="Incorrect email or password"
         )
 
     access_token = create_access_token(user.userId)
+    refresh_token = create_access_token(str(user.userId))
 
-    db.add(UserSession)
-    db.flush()
-    user.token = access_token
-
-
+    session = UserSession(
+        userId=str(user.userId),
+        token=refresh_token,
+    )
+    db.add(session)
     db.commit()
+    db.refresh(session)
 
     return {
         "message": "Login successful",
-        "token": access_token
+        "token": access_token,
+        "refresh_token": refresh_token,
     }
+
 
 
 @router.post("/logout")
 def logout(request: Logout, db: Session = Depends(get_db)):
-    user_id=decode_token(request.token)
-    user = db.query(User).filter(User.userId == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="user not found"
-        )
-    if not user.token:
-        raise HTTPException(
-            status_code=401,
-            detail="user is not logged in"
-        )
-    user.token=None
-    db.commit()    
-    return {
-        "message": "Logout successful"
-    }
+    session = db.query(UserSession).filter(UserSession.token == request.RefreshToken).first()
+
+    if session:
+        db.delete(session)
+        db.commit()
+    return {"message": "Logged out successfully"}
 
 
 @router.post("/forgetpassword")
