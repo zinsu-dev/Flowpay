@@ -13,61 +13,66 @@ load_dotenv()
 Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 algorithm =os.getenv("ALGORITHM", "HS256") 
-secret_key = os.getenv("SECRT_KEY")
+secret_key = os.getenv("SECRET_KEY")
 EXPIRE_MIN=30
 
 
 
-def create_access_token(userId: str):
+def create_access_token(user_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRE_MIN)
     payload = {
-        "sub": userId,
+        "sub": str(user_id),
         "exp": expire
     }
 
-    token =jwt.encode(
+    return jwt.encode(
         payload,
         secret_key,
         algorithm=algorithm
     )
-    return token
 
 
-def decode_token(token: str):
+def decode_token(token: str) -> str:
     try:
-        payload =jwt.decode(
+        payload = jwt.decode(
             token,
             secret_key,
-            aLgorithms=[algorithm]
+            algorithms=[algorithm]
         )
-        userId:str=payload.get("sub")
-        if not userId:
+        user_id = payload.get("sub")
+        if not isinstance(user_id, str) or not user_id:
             raise HTTPException(
-                status_code=402,
-                detail="Invalid userId"
+                status_code=401,
+                detail="Invalid token"
             )
         
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-        status_code= 401,
-        detail= "Expired token"
-    ) 
+            status_code=401,
+            detail="Expired token"
+        )
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
         )
-    return userId
+    return user_id
 
-def get_current_user(token: str=Depends(Oauth2_scheme), db: Session=Depends(get_db)) -> User:
-    userId=decode_token(token)
-
-    user = db.query(User).filter(User.userId == userId).first()
+def get_current_user(
+    token: str = Depends(Oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+    user_id = decode_token(token)
+    user = db.query(User).filter(
+        User.userId == user_id,
+        User.token == token
+    ).first()
 
     if not user:
         raise HTTPException(
-            status_code=404,
-            detail="User not found"
+            status_code=401,
+            detail="Invalid or revoked token"
         )
     return user
     
