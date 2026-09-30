@@ -26,5 +26,5 @@ class ForgetPassword(BaseModel):
 class Resetpassword(BaseModel):
     token: str
     new_password: str
-    confirm_password: str 
+    confirm_password: str
 

@@ -2,5 +2,4 @@
 /venv/
 __pycache__/
 *.py[cod]
-flaskr/__pycache__/
 flowpay.db
