@@ -17,7 +17,7 @@ class Login(BaseModel):
     password: str
 
 class Logout(BaseModel):
-    token: str
+    RefreshToken: str
 
 class ForgetPassword(BaseModel):
     email: EmailStr
