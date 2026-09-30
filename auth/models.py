@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, Float, Boolean, Column, DateTime
+from sqlalchemy import String, Integer, Float, Boolean, Column, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database.database import Base
 import uuid
@@ -23,4 +23,10 @@ class User(Base):
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
-    
+
+class UserSession(Base):
+    __tablename__="session"
+    sessionId = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
+    userId = Column(String, ForeignKey("user.userId"), nullable=False)
+    token = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
