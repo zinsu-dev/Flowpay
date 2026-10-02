@@ -16,11 +16,18 @@ router = APIRouter(
 @router.post("/signup")
 def user_register(request: Signup, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email, User.username == request.username).first()
+    phone_number = db.query(User).filter(User.phone_number == request.phone_number).first()
 
     if user:
         raise HTTPException(
             status_code=409,
             detail="email or username already exist"
+        )
+
+    if phone_number:
+        raise HTTPException(
+            status_code=409,
+            detail="phone number already exist"
         )
 
     if request.password != request.confirm_password:
