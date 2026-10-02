@@ -23,6 +23,7 @@ class Wallet(Base):
     __tablename__="wallet"
     id = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
     user = relationship("User", back_populates="wallet")
+    account_number = Column(String(10), unique=True, nullable=False)
     wallet_userId = Column(String, ForeignKey("user.userId"), unique=True)
     wallet_currency = Column(String, default=lambda: str("NGN"), nullable=False)
     wallet_available_balance = Column(Float, nullable=False, default=0)
