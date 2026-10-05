@@ -6,7 +6,10 @@ from database.database import get_db
 from auth.models import User, UserSession
 from auth.schema import Signup, Login, Logout, ForgetPassword, Resetpassword
 from auth.utils import hash_password, verify_password
-from auth.auth import create_access_token, decode_token
+from auth.auth import create_access_token, decode_token,get_current_user
+from wallet.acount_number import generate_account_number
+from wallet.model import Wallet
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     tags=["auth"],
@@ -36,20 +39,45 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
             detail="both password do not match"
         )
     password = hash_password(request.password)
+    transaction_pin = hash_password(str(request.transaction_pin))
+
+    if request.transaction_pin <= 3:
+        raise HTTPException(
+            status_code=422,
+            detail="transaction pin must be at least 4 characters long"
+        )
 
     user = User(
         first_name = request.first_name,
         last_name = request.last_name,
         username = request.username,
         email = request.email,
-        transaction_pin = request.transaction_pin,
+        transaction_pin = transaction_pin,
+        phone_number = request.phone_number,
         password = password
 
     )
 
+
     db.add(user)
+    db.flush()
+    
+
+
+    account_number = generate_account_number()
+    wallet = Wallet(
+        account_number=account_number,
+        # wallet_userId=user.userId,
+    )
+    db.add(wallet)
     db.commit()
-    db.refresh(user)
+    # db.refresh(user)
+
+    # db.flush()
+
+    
+    
+
 
     return {
         "message": "Account created successful",
@@ -130,3 +158,38 @@ def resetpassword(request: Resetpassword, db: Session = Depends(get_db)):
     return {
         "message": "password reset successful"
     }
+
+
+@router.post("/token")
+def get_user_0Auth2PasswordBearer(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.username).first()
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="user not found"
+        )
+    if not verify_password(request.password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect password"
+        )
+    create_token = create_access_token(str(user.userId))
+    return{
+        "access_token": create_token,
+        "token_type": "bearer"
+    }
+
+@router.get("/me")
+def get_current_user(get_current_user: User=Depends(get_current_user), db:Session=Depends(get_db)):
+    return{
+        "userid": get_current_user.userId,
+        "first_name": get_current_user.first_name,
+        "last_name": get_current_user.last_name,
+        "username": get_current_user.username,
+        "email": get_current_user.email,
+        "phone_number": get_current_user.phone_number,
+        "transaction_pin": get_current_user.transaction_pin,
+        "Password": get_current_user.password,
+    }
+
+    

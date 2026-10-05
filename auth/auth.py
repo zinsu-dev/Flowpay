@@ -10,7 +10,7 @@ import os
 
 load_dotenv()
 
-Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 algorithm =os.getenv("ALGORITHM", "HS256") 
 secret_key = os.getenv("SECRET_KEY")
@@ -66,7 +66,7 @@ def get_current_user(
     user_id = decode_token(token)
     user = db.query(User).filter(
         User.userId == user_id,
-        User.token == token
+
     ).first()
 
     if not user:
