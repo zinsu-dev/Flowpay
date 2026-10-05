@@ -26,7 +26,7 @@ class Wallet(Base):
     account_number = Column(String(10), unique=True, nullable=False)
     wallet_userId = Column(String, ForeignKey("user.userId"), unique=True)
     wallet_currency = Column(String, default=lambda: str("NGN"), nullable=False)
-    wallet_available_balance = Column(Float, nullable=False, default=0)
+    wallet_available_balance = Column(Integer, nullable=False, default=0)
     wallet_status = Column(String, default=lambda: str("active"), nullable=False)
     ledger = relationship(
         "LedgerAccount",
