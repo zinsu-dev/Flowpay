@@ -7,7 +7,7 @@ from auth.models import User, UserSession
 from auth.schema import Signup, Login, Logout, ForgetPassword, Resetpassword
 from auth.utils import hash_password, verify_password
 from auth.auth import create_access_token, decode_token,get_current_user
-from wallet.acount_number import generate_account_number
+from wallet.account_number import generate_account_number
 from wallet.model import Wallet
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -67,13 +67,11 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     account_number = generate_account_number()
     wallet = Wallet(
         account_number=account_number,
-        # wallet_userId=user.userId,
+
     )
     db.add(wallet)
     db.commit()
-    # db.refresh(user)
-
-    # db.flush()
+   
 
     
     
@@ -81,7 +79,9 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
 
     return {
         "message": "Account created successful",
-        "id": user.userId
+        "id": user.userId,
+        "account_number": account_number
+    
     }
 
 
@@ -110,7 +110,6 @@ def login(request: Login, db: Session = Depends(get_db)):
         "token": access_token,
         "refresh_token": refresh_token,
     }
-
 
 
 @router.post("/logout")
