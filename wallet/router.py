@@ -27,3 +27,5 @@ def get_user_wallet(currentuser: str=Depends(get_current_user), db: Session=Depe
         "wallet_status"
     )
 
+
+

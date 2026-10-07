@@ -10,3 +10,4 @@ uuid
 alembic
 paybridge
 httpx 
+python-multipart 
