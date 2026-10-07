@@ -7,7 +7,7 @@ class Signup(BaseModel):
     username: str
     email: EmailStr
     phone_number: str
-    transaction_pin: int
+    transaction_pin: str
     password: str 
     confirm_password: str
 
