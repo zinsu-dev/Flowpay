@@ -41,7 +41,7 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     password = hash_password(request.password)
     transaction_pin = hash_password(str(request.transaction_pin))
 
-    if request.transaction_pin <= 3:
+    if not request.transaction_pin ==4:
         raise HTTPException(
             status_code=422,
             detail="transaction pin must be at least 4 characters long"
