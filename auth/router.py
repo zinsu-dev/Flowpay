@@ -41,7 +41,7 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     password = hash_password(request.password)
     transaction_pin = hash_password(str(request.transaction_pin))
 
-    if request.transaction_pin <= 3:
+    if  int(len(request.transaction_pin)) < 4 or int(len(request.transaction_pin)) > 4:
         raise HTTPException(
             status_code=422,
             detail="transaction pin must be at least 4 characters long"
@@ -67,6 +67,7 @@ def user_register(request: Signup, db: Session = Depends(get_db)):
     account_number = generate_account_number()
     wallet = Wallet(
         account_number=account_number,
+        wallet_userId = user.userId
 
     )
     db.add(wallet)
@@ -180,6 +181,8 @@ def get_user_0Auth2PasswordBearer(request: OAuth2PasswordRequestForm = Depends()
 
 @router.get("/me")
 def get_current_user(get_current_user: User=Depends(get_current_user), db:Session=Depends(get_db)):
+    
+
     return{
         "userid": get_current_user.userId,
         "first_name": get_current_user.first_name,
@@ -187,8 +190,7 @@ def get_current_user(get_current_user: User=Depends(get_current_user), db:Sessio
         "username": get_current_user.username,
         "email": get_current_user.email,
         "phone_number": get_current_user.phone_number,
-        "transaction_pin": get_current_user.transaction_pin,
-        "Password": get_current_user.password,
+        
     }
 
     
