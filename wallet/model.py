@@ -3,7 +3,7 @@ from sqlalchemy import String, Integer, Float, Column, ForeignKey, Numeric, Date
 from sqlalchemy.orm import foreign, relationship
 from database.database import Base 
 from enum import Enum
-from datatime import datetime
+from datetime import datetime
 
 class WalletCurrency(str, Enum):
     NIGERIA_NGN = "NGN"
@@ -62,7 +62,7 @@ class LedgerAccount(Base):
     )
     Transaction = relationship(
         "Transaction",
-        black_populates="ledger")
+        back_populates="ledger")
     entries_amount = Column(Numeric(18, 2), nullable=False, default=0)
     account_owners_type = Column(String, default="wallet", nullable=False)
     entries_id = Column(String, ForeignKey("wallet.id"), nullable=False)

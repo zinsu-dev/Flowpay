@@ -29,10 +29,9 @@ def process_deposit(request: DepositRequest, db: Session):
         currency = request.currency,
         transaction_type = "`deposit",
         sender_wallet_id = None,
-        receiver_wallet_id = request.receiver_wallet_id
+        receiver_wallet_id = request.receiver_wallet_id,
         transaction_status = "pending"
         
-
     )
 
     
@@ -45,4 +44,4 @@ def process_deposit(request: DepositRequest, db: Session):
     return transaction
 
 
-def process_transfer(r)
+# def process_transfer()
