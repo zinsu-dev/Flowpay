@@ -4,6 +4,7 @@ from database.database import get_db
 from wallet.model import Wallet, LedgerAccount
 from wallet.account_number import generate_account_number
 from auth.auth import get_current_user
+from auth.models import User
 
 
 router=APIRouter(
@@ -43,6 +44,18 @@ def get_user_account_number(currentuser: str=Depends(get_current_user), db: Sess
 
     }
         
+@router.get("/{get_account_number}")
+def get_account_number(get_account_number:str, db:Session=Depends(get_db)):
+    account=db.query(Wallet).filter(Wallet.account_number==get_account_number).first()
 
+    if not account :
+        raise HTTPException(
+            status_code=404,
+            detail="user details not found"
+        )
 
+    return{
+        "first_name": account.user.first_name,
+        "surname_name": account.user.last_name
+    }
 
