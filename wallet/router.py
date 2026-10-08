@@ -58,3 +58,4 @@ def get_account_number(get_account_number:str, db:Session=Depends(get_db)):
         "first_name": account.user.first_name,
         "surname_name": account.user.last_name
     }
+
