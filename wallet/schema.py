@@ -1,6 +1,4 @@
-from dataclasses import field
-
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from decimal import Decimal 
 
 
@@ -10,8 +8,8 @@ class WalletResponse(BaseModel):
 
 
 class DepositRequest(BaseModel):
-    transaction_amount: Decimal = field(gt=0, description="Amount to deposit")
+    transaction_amount: Decimal = Field(gt=0,description="Amount to deposit")
     currency: str = "NGN"
     transaction_type: str = "deposit"
-    sender_wallet_id: str
+    sender_wallet_id: None
     receiver_wallet_id: str
