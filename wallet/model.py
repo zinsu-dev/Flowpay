@@ -20,6 +20,11 @@ class LedgerEntryTypes(str, Enum):
     CREDIT = "credit"
     DEBIT = "debit"
 
+class TransactionStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
 
 class TransactionTypes(str, Enum):
     DEPOSIT = "deposit"
@@ -38,17 +43,16 @@ class Wallet(Base):
     wallet_status = Column(String, default=lambda: str("active"), nullable=False)
     ledger = relationship(
         "LedgerAccount",
-        back_populates="wallet",
-        primaryjoin=lambda: Wallet.id == foreign(LedgerAccount.entries_id),
-    )
+        back_populates="wallet")
     sent_transactions = relationship(
-        "Transaction",
-        ForeignKey("Transaction.sender_wallet_id"),
-        back_populates="sender_wallet",)
+    "Transaction",
+    foreign_keys="Transaction.sender_wallet_id",
+    back_populates="sender_wallet",)
+
     received_transactions = relationship(
-        "Transaction",
-        ForeignKey("Transaction.receiver_wallet_id"),
-        back_populates="receiver_wallet",)
+    "Transaction",
+    foreign_keys="Transaction.receiver_wallet_id",
+    back_populates="receiver_wallet",)
     
 
 
@@ -57,12 +61,16 @@ class LedgerAccount(Base):
     id = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
     wallet = relationship(
         "Wallet",
-        back_populates="ledger",
-        primaryjoin=lambda: Wallet.id == foreign(LedgerAccount.entries_id),
-    )
-    Transaction = relationship(
-        "Transaction",
         back_populates="ledger")
+    transaction = relationship(
+    "Transaction",
+    back_populates="ledger_entries",)
+    
+    transaction_id = Column(
+        String,
+        ForeignKey("transaction.id"),
+        nullable=False,
+    )
     entries_amount = Column(Numeric(18, 2), nullable=False, default=0)
     account_owners_type = Column(String, default="wallet", nullable=False)
     entries_id = Column(String, ForeignKey("wallet.id"), nullable=False)
@@ -78,12 +86,31 @@ class Transaction(Base):
     transaction_type = Column(String, default=lambda:str("deposit"), nullable=False)
     transaction_reference = Column(String, default=lambda: str(uuid.uuid4()), unique=True, nullable=False)
     provider_reference = Column(String, unique=True,default=lambda: str(uuid.uuid4()), nullable=True)
-    sender_wallet_id = Column(String, ForeignKey("wallet.id"), nullable=False)
-    receiver_wallet_id = Column(String, ForeignKey("wallet.id"), nullable=False)
-    sender_wallet = relationship("Wallet", foreign_keys=[sender_wallet_id], back_populates="sent_transactions")
-    receiver_wallet = relationship("Wallet", foreign_keys=[receiver_wallet_id], back_populates="received_transactions")
+    sender_wallet_id = Column(
+        String,
+        ForeignKey("wallet.id"),
+        nullable=True
+    )
+
+    receiver_wallet_id = Column(
+        String,
+        ForeignKey("wallet.id"),
+        nullable=False
+    )
+
+    sender_wallet = relationship(
+        "Wallet",
+        foreign_keys=[sender_wallet_id],
+        back_populates="sent_transactions",
+    )
+
+    receiver_wallet = relationship(
+        "Wallet",
+        foreign_keys=[receiver_wallet_id],
+        back_populates="received_transactions",
+    )
     created_at = Column(DateTime, default=lambda: datetime.utcnow(), nullable=False)
-    ledger = relationship(
+    ledger_entries = relationship(
         "LedgerAccount",
         back_populates="transaction")
     

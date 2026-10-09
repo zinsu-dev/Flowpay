@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
 from database.database import get_db
-from wallet.model import Wallet, LedgerAccount
+from wallet.model import Wallet, LedgerAccount,WalletStatus,WalletCurrency
 from wallet.account_number import generate_account_number
 from auth.auth import get_current_user
 from auth.models import User
-
+from service.transaction_service import process_deposit
+from wallet.schema import DepositRequest
 
 router=APIRouter(
     tags=["/wallet"],
@@ -59,3 +60,27 @@ def get_account_number(get_account_number:str, db:Session=Depends(get_db)):
         "surname_name": account.user.last_name
     }
 
+@router.post("/deposit")
+def deposit(request: DepositRequest, currentuser: User=Depends(get_current_user), db: Session=Depends(get_db)):
+    user = db.query(User).filter(User.userId == currentuser.userId).first()
+    wallet = db.query(Wallet).filter(Wallet.wallet_userId == currentuser.userId).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="user not found"
+        )
+    if wallet.wallet_status != WalletStatus.ACTIVE:
+        raise HTTPException(
+            status_code=400,
+            detail="wallet not active"
+        )
+
+    if wallet.wallet_currency != WalletCurrency.NIGERIA_NGN:
+        raise HTTPException(
+            status_code=400,
+            detail="currency mismatch"
+        )
+
+    
+    return process_deposit(request, db)
