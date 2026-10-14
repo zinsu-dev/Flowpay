@@ -1,8 +1,8 @@
 """model
 
-Revision ID: f9297701e505
+Revision ID: c8da337308c8
 Revises: 
-Create Date: 2026-10-09 12:18:59.593565
+Create Date: 2026-10-09 13:19:53.305546
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f9297701e505'
+revision: str = 'c8da337308c8'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -61,14 +61,13 @@ def upgrade() -> None:
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('transaction_amount', sa.Numeric(precision=18, scale=2), nullable=False),
     sa.Column('transaction_status', sa.String(), nullable=False),
-    sa.Column('currency', sa.String(), nullable=False),
+    sa.Column('currency', sa.String(length=5), nullable=False),
     sa.Column('transaction_type', sa.String(), nullable=False),
     sa.Column('transaction_reference', sa.String(), nullable=False),
     sa.Column('provider_reference', sa.String(), nullable=True),
     sa.Column('sender_wallet_id', sa.String(), nullable=True),
     sa.Column('receiver_wallet_id', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['currency'], ['wallet.wallet_currency'], ),
     sa.ForeignKeyConstraint(['receiver_wallet_id'], ['wallet.id'], ),
     sa.ForeignKeyConstraint(['sender_wallet_id'], ['wallet.id'], ),
     sa.PrimaryKeyConstraint('id'),

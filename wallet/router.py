@@ -63,13 +63,21 @@ def get_account_number(get_account_number:str, db:Session=Depends(get_db)):
 @router.post("/deposit")
 def deposit(request: DepositRequest, currentuser: User=Depends(get_current_user), db: Session=Depends(get_db)):
     user = db.query(User).filter(User.userId == currentuser.userId).first()
-    wallet = db.query(Wallet).filter(Wallet.wallet_userId == currentuser.userId).first()
 
     if not user:
         raise HTTPException(
             status_code=404,
             detail="user not found"
         )
+    
+    wallet = db.query(Wallet).filter(Wallet.wallet_userId == currentuser.userId).first()
+
+    if not wallet:
+        raise HTTPException(
+            status_code=404,
+            detail="wallet not found"
+        )
+    
     if wallet.wallet_status != WalletStatus.ACTIVE:
         raise HTTPException(
             status_code=400,

@@ -82,7 +82,7 @@ class Transaction(Base):
     id = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
     transaction_amount = Column(Numeric(18, 2), nullable=False, default=0)
     transaction_status = Column(String, default=lambda:str("pending"), nullable=False)
-    currency = Column(String, ForeignKey("wallet.wallet_currency"), nullable=False)
+    currency = Column(String(5), default="NGN", nullable=False)
     transaction_type = Column(String, default=lambda:str("deposit"), nullable=False)
     transaction_reference = Column(String, default=lambda: str(uuid.uuid4()), unique=True, nullable=False)
     provider_reference = Column(String, unique=True,default=lambda: str(uuid.uuid4()), nullable=True)
