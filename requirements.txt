@@ -11,3 +11,5 @@ alembic
 paybridge
 httpx 
 python-multipart 
+psycopg2-binary
+pytest

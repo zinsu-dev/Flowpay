@@ -1,7 +1,6 @@
 from sqlalchemy import String, Integer, Float, Boolean, Column, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database.database import Base
-from wallet.model import Wallet
 import uuid
 from enum import Enum
 from datetime import datetime, timezone
@@ -17,10 +16,10 @@ class User(Base):
     userId = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True, nullable=False)
     role = Column(String, default=lambda:str("user"))
     username = Column(String, unique=True, nullable=False)
-    wallet = relationship(Wallet, back_populates="user")
+    wallet = relationship("Wallet", back_populates="user")
     email = Column(String, unique=True, nullable=False)
     phone_number = Column(String,nullable=True, unique=True)
-    transaction_pin = Column(Integer, nullable=False)
+    transaction_pin = Column(String, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
