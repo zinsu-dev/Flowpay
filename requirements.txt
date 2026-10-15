@@ -8,6 +8,7 @@ psycopg2-binary
 pydantic[email]
 uuid
 alembic
+python-dotenv
 paybridge
 httpx 
 python-multipart 
